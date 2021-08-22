@@ -104,19 +104,21 @@ export default class {
     }
 
     updateAxes(x, y) {
-        this.y = d3.scaleLinear()
-            .domain([y.min, y.max])
-            .range([y.max - y.min, 0]);
+
 
         this.x = d3.scaleLinear()
             .domain([x.min, x.max])
             .range([0, x.max - x.min]);
 
+        this.y = d3.scaleLinear()
+            .domain([y.min, y.max])
+            .range([y.max - y.min, 0]);
+            
         this.yAxisSvg.attr('transform', `translate(0, 0)`)
             .attr('class', 'axis')
             .call(d3.axisLeft(this.y));
 
-        this.xAxisSvg.attr('transform', `translate(0, ${this.y(0)})`)
+        this.xAxisSvg.attr('transform', `translate(0, ${this.y(y.min)})`)
             .classed('axis', true)
             .call(d3.axisBottom(this.x));
 
