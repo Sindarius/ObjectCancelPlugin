@@ -52,7 +52,7 @@ export default class {
             .attr('clip-path', 'url(#clip)')
         this.zoomArea = this.clipArea.append('g')
 
-        this.bedSvg = this.zoomArea.append('rect');
+        this.bedSvg = this.zoomArea.append('g');
         this.xAxisSvg = this.svg.append('g');
         this.yAxisSvg = this.svg.append('g');
         this.buildObjectSvg = this.zoomArea.append('g')
@@ -78,14 +78,24 @@ export default class {
     }
 
     updateViewBox(x, y) {
-        this.svg.attr('viewBox', `20 20 ${x.max - x.min} ${y.max - y.min}`)
+        this.svg.attr('viewBox', `0 20 ${x.max - x.min} ${y.max - y.min}`)
     }
 
-    updateRect(el, x, y, stroke, fill) {
-        el.attr('x', this.x(x.min))
-            .attr('y', this.y(y.max))
-            .attr('width', x.max - x.min)
-            .attr('height', y.max - y.min)
+    updateBed(el, x, y, stroke, fill, isDelta) {
+        d3.select(el[0]).selectAll("*").remove();
+        if (isDelta) {
+            let c = el.append('circle')
+                .attr('cx', this.x((x.max - x.min) / 2))
+                .attr('cy', this.y((y.max - y.min) / 2))
+                .attr('r', (x.max - x.min) / 2)
+        }
+        else {
+            let r = el.append('rect');
+            r.attr('x', this.x(x.min))
+                .attr('y', this.y(y.max))
+                .attr('width', x.max - x.min)
+                .attr('height', y.max - y.min)
+        }
 
         if (stroke)
             el.attr('stroke', stroke)
@@ -116,7 +126,7 @@ export default class {
             .attr('width', x.max - x.min + 30)
             .attr('height', y.max - y.min + 30)
 
-            this.maxy = y.max; 
+        this.maxy = y.max;
     }
 
     createTextElement(el, x, y, label) {
@@ -131,22 +141,23 @@ export default class {
     }
 
     //TODO: Add Round Bed
-    updateBuildVolume(axes) {
+    updateBuildVolume(axes, isDelta) {
+        console.log('ding');
+        console.log(axes);
         let x = axes.filter(axis => axis.letter == 'X')[0];
         let y = axes.filter(axis => axis.letter == 'Y')[0];
         if (x && y) {
             this.updateViewBox(x, y);
             this.updateAxes(x, y);
-            this.updateRect(this.bedSvg, x, y, 'white', 'transparent');
+            this.updateBed(this.bedSvg, x, y, 'white', 'transparent', isDelta);
             this.resetZoom();
         }
     }
 
-    resetZoom(){
+    resetZoom() {
         var t = d3.zoomIdentity.translate(0, this.maxy / 4).scale(0.75);
         this.svg.call(this.zoom.transform, t);
-        this.svg.call(this.zoom);
-
+        //this.svg.call(this.zoom);
     }
 
     setCursorPosition(axes) {
@@ -188,13 +199,24 @@ export default class {
         let mouseOver = function (e, d) {
             that.mouseOverIdx = d3.select(this).attr('data-index')
             d3.select(this)
-                .attr('fill', 'Orange');
+                .attr('fill', 'orange')
         }
 
         let mouseOut = function (e, d) {
             that.mouseOverIdx = -1;
-            d3.select(this)
-                .attr('fill', 'black');
+            that.buildObjectSvg.selectAll('rect')
+                .attr('fill', (d, i) => {
+                    if (i == that.mouseOverIdx) {
+                        return 'Orange'
+                    }
+                    if (d.cancelled) {
+                        return 'Red'
+                    }
+                    else if (i == that.currentBuildObjectIndex) {
+                        return 'Green'
+                    }
+                    return 'Black'
+                })
         }
 
         let mouseClick = function (e, d) {
@@ -268,8 +290,6 @@ export default class {
                 }
             )
     }
-
-
     updateData(data) {
         if (data.hasOwnProperty('objects')) {
             this.currentBuildObjectIndex = data.currentObject;

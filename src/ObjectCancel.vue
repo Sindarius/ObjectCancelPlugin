@@ -1,12 +1,12 @@
 <template>
-	<div class="primary-container" ref="primarycontainer" v-resize="resize">
+	<div class="primary-container" ref="primarycontainer">
 		<v-row>
 			<v-col cols="4">
 				<v-row dense>
 					<v-col cols="6">
 						<h3>Object Cancel</h3>
 					</v-col>
-                    <v-spacer></v-spacer>
+					<v-spacer></v-spacer>
 					<v-col cols="2">
 						<v-btn @click="resetView">Reset</v-btn>
 					</v-col>
@@ -51,6 +51,13 @@
 </template>
 
 <style scoped>
+.active {
+	background-color: green !important;
+}
+
+.cancelled {
+	background-color: red !important;
+}
 </style>
 
 <style>
@@ -69,14 +76,6 @@
 	width: 100%;
 	height: 100%;
 }
-
-.active {
-	background-color: green !important;
-}
-
-.cancelled {
-	background-color: red !important;
-}
 </style>
 
 <script>
@@ -85,6 +84,7 @@
 import ObjectCancel from './objectcancel';
 import {mapState, mapGetters, mapActions} from 'vuex';
 import {isPrinting} from '../../store/machine/modelEnums';
+import {KinematicsName} from '../../store/machine/modelEnums';
 
 var objectCancel;
 export default {
@@ -102,9 +102,13 @@ export default {
 			axes: (state) => state.move.axes,
 			job: (state) => state.job,
 			status: (state) => state.state.status,
+			kinematicsName: (state) => state.move.kinematics.name,
 		}),
 		...mapGetters(['isConnected']),
-		buildObjects: function () {
+		isDelta() {
+			return this.kinematicsName === KinematicsName.delta || this.kinematicsName === KinematicsName.rotaryDelta;
+		},
+		buildObjects() {
 			if (isPrinting(this.status)) {
 				return this.job.build;
 			}
@@ -117,13 +121,15 @@ export default {
 		let height = window.innerHeight - globalContainerHeight * 2;
 
 		objectCancel = new ObjectCancel(this.$refs.container, this.$refs.container.clientWidth, height);
-		this.resize();
 
 		//watch for resizing events
 		window.addEventListener('resize', () => {
-			this.$nextTick(() => {
-				this.resize();
-			});
+			this.resize();
+		});
+
+		this.$nextTick(() => {
+			this.resize();
+			objectCancel.resetZoom();
 		});
 
 		if (isPrinting(this.status)) {
@@ -131,11 +137,9 @@ export default {
 		}
 
 		objectCancel.cancelCallback = (obj, idx) => this.startCancelObject(obj, idx);
+		
+		setTimeout(() => {this.resize()}, 2000);
 
-		setTimeout(() => {
-			this.resize();
-			this.updateBuildVolume();
-		}, 5000);
 	},
 	methods: {
 		...mapActions('machine', {
@@ -160,6 +164,7 @@ export default {
 			this.$refs.primarycontainer.style.height = (viewerHeight >= 300 ? viewerHeight : 300) + 'px';
 			if (objectCancel) {
 				objectCancel.resize(this.$refs.container.clientWidth, this.$refs.primarycontainer.style.height);
+				this.updateBuildVolume();
 			}
 		},
 		async objectDialogCancelObject() {
@@ -169,19 +174,20 @@ export default {
 			this.objectDialogData.info = {};
 		},
 		updateBuildVolume() {
-			objectCancel.updateBuildVolume(this.axes);
+			objectCancel.updateBuildVolume(this.axes, this.isDelta);
 		},
 		mouseOverIdx(idx) {
 			objectCancel.setMouseOverIdx(idx);
 		},
 		resetView() {
+			this.updateBuildVolume();
 			objectCancel.resetZoom();
 		},
 	},
 	watch: {
 		isConnected(to) {
 			if (to) {
-				this.updateBuildVolume();
+				this.resize();
 			}
 		},
 		buildObjects: {
