@@ -152,7 +152,7 @@ export default {
     },
   },
   activated() {
-    this.reszie();
+    this.resize();
   },
 
   mounted() {
