@@ -78,7 +78,7 @@ export default class {
     }
 
     updateViewBox(x, y) {
-        this.svg.attr('viewBox', `0 20 ${x.max - x.min} ${y.max - y.min}`)
+        this.svg.attr('viewBox', `-30 20 ${x.max - x.min} ${y.max - y.min}`)
     }
 
     updateBed(el, x, y, stroke, fill, isDelta) {
@@ -113,7 +113,7 @@ export default class {
         this.y = d3.scaleLinear()
             .domain([y.min, y.max])
             .range([y.max - y.min, 0]);
-            
+
         this.yAxisSvg.attr('transform', `translate(0, 0)`)
             .attr('class', 'axis')
             .call(d3.axisLeft(this.y));
@@ -144,8 +144,6 @@ export default class {
 
     //TODO: Add Round Bed
     updateBuildVolume(axes, isDelta) {
-        console.log('ding');
-        console.log(axes);
         let x = axes.filter(axis => axis.letter == 'X')[0];
         let y = axes.filter(axis => axis.letter == 'Y')[0];
         if (x && y) {
