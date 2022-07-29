@@ -45,18 +45,11 @@
         <v-card-text>{{ objectDialogData.info.name }}</v-card-text>
         <v-card-actions>
           <v-row no-gutters>
-            <v-col cols="6">
-              <v-btn @click="objectDialogCancelObject" block color="primary"
-                >Ok</v-btn
-              >
+            <v-col class="pr-2" cols="6">
+              <v-btn @click="objectDialogCancelObject" block color="primary">Yes</v-btn>
             </v-col>
-            <v-col cols="6">
-              <v-btn
-                @click="objectDialogData.showDialog = false"
-                block
-                color="error"
-                >Cancel</v-btn
-              >
+            <v-col class="pl-2" cols="6">
+              <v-btn @click="objectDialogData.showDialog = false" block color="error">No</v-btn>
             </v-col>
           </v-row>
         </v-card-actions>
