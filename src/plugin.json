@@ -2,8 +2,8 @@
   "id": "ObjectCancel",
   "name": "Object Cancel",
   "author": "Juan Rosario",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "LGPL-3.0-or-later",
   "homepage": "https://github.com/Sindarius/ObjectCancelPlugin",
-  "dwcVersion": "3.4"
+  "dwcVersion": "3.5"
 }

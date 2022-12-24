@@ -112,7 +112,7 @@
 
 import ObjectCancel from "./objectcancel";
 import { mapState, mapGetters, mapActions } from "vuex";
-import { isPrinting, KinematicsName } from "@/store/machine/modelEnums";
+import { isPrinting, KinematicsName } from "@duet3d/objectmodel";
 
 var objectCancel;
 export default {
