@@ -112,7 +112,8 @@
 
 import ObjectCancel from "./objectcancel";
 import { mapState, mapGetters, mapActions } from "vuex";
-import { isPrinting, KinematicsName } from "@duet3d/objectmodel";
+import { isPrinting } from "@/utils/enums"
+import {KinematicsName } from "@duet3d/objectmodel";
 
 var objectCancel;
 export default {
@@ -178,8 +179,9 @@ export default {
       objectCancel.updateData(this.job.build);
     }
 
-    objectCancel.cancelCallback = (obj, idx) =>
+    objectCancel.cancelCallback = (obj, idx) => {
       this.startCancelObject(obj, idx);
+    };
 
     setTimeout(() => {
       this.resize();

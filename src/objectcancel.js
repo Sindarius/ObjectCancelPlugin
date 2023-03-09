@@ -104,8 +104,6 @@ export default class {
     }
 
     updateAxes(x, y) {
-
-
         this.x = d3.scaleLinear()
             .domain([x.min, x.max])
             .range([0, x.max - x.min]);
@@ -142,7 +140,6 @@ export default class {
             .text(label);
     }
 
-    //TODO: Add Round Bed
     updateBuildVolume(axes, isDelta) {
         let x = axes.filter(axis => axis.letter == 'X')[0];
         let y = axes.filter(axis => axis.letter == 'Y')[0];
